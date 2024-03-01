@@ -1,0 +1,3 @@
+GET http://localhost:8181/auth/validate-token?token=MdLA7XUXaXE6XD1KmBRurjpV2OZwYk077dmVZpxHfhFrDaLMG4gEdKIF5XK2V3iD6XYUbwb2QoXNvH0yxo1MXnF2YRqaO1dop9mjoYFP1gO3TVVq0PCf0K06dXlCNYJC
+
+###

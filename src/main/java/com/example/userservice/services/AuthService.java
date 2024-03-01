@@ -1,5 +1,6 @@
 package com.example.userservice.services;
 
+import com.example.userservice.dtos.UserDto;
 import com.example.userservice.exceptions.InvalidTokenException;
 import com.example.userservice.exceptions.LoginFailedException;
 import com.example.userservice.exceptions.UserNotFoundException;
@@ -55,5 +56,15 @@ public class AuthService {
         Token token = tokenRepository.findByValue(tokenValue)
                 .orElseThrow(() -> new InvalidTokenException("Invalid token"));
         tokenRepository.delete(token);
+    }
+
+    public User validateToken(String token) {
+        Token token1 = tokenRepository.findByValue(token)
+                .orElseThrow(() -> new InvalidTokenException("Invalid token"));
+        if (token1.getExpiry().before(new Date())) {
+            tokenRepository.delete(token1);
+            throw new InvalidTokenException("Token expired");
+        }
+        return token1.getUser();
     }
 }
