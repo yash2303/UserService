@@ -30,12 +30,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public User signUp(@RequestBody SignUpRequestDto signUpRequestDto) {
-        return authService.signUp(signUpRequestDto);
+        return authService.signUp(signUpRequestDto.getName(), signUpRequestDto.getEmail(), signUpRequestDto.getPassword());
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody LogoutRequestDto logoutRequestDto) {
         authService.logout(logoutRequestDto.getToken());
-        return null;
+        return ResponseEntity.noContent().build();
     }
 }

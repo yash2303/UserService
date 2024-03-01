@@ -1,0 +1,6 @@
+POST http://localhost:8181/auth/logout
+Content-Type: application/json
+
+{
+  "token": "qrq7LAkDj1XwfjpvpRT8Tvgj8fl90fGw2hgRy2i9ONqlmdducLGmPxpxdoP2CunKa7kv3YR8WYzo2iyNK505MVqtJXFGzwaSCfdjw0E3uU0oFZ4jN4Dpegb39zpDsIS7"
+}

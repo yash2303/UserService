@@ -1,6 +1,7 @@
 package com.example.userservice.controlleradvice;
 
 import com.example.userservice.dtos.ExceptionDto;
+import com.example.userservice.exceptions.InvalidTokenException;
 import com.example.userservice.exceptions.LoginFailedException;
 import com.example.userservice.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,14 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(LoginFailedException.class)
     public ResponseEntity<ExceptionDto> handleLoginFailedException(LoginFailedException e) {
+        return new ResponseEntity<>(
+                new ExceptionDto(e.getMessage()),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ExceptionDto> handleInvalidTokenException(InvalidTokenException e) {
         return new ResponseEntity<>(
                 new ExceptionDto(e.getMessage()),
                 HttpStatus.UNAUTHORIZED

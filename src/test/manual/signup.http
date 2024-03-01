@@ -1,7 +1,10 @@
-POST http://localhost:8181/auth/login
+POST http://localhost:8181/auth/signup
 Content-Type: application/json
 
 {
+  "name": "Example Name",
   "email": "example@email.com",
   "password": "ExamplePassword123"
 }
+
+###

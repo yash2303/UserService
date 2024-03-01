@@ -1,49 +1,59 @@
 package com.example.userservice.services;
 
-import com.example.userservice.dtos.SignUpRequestDto;
+import com.example.userservice.exceptions.InvalidTokenException;
 import com.example.userservice.exceptions.LoginFailedException;
 import com.example.userservice.exceptions.UserNotFoundException;
+import com.example.userservice.models.Token;
 import com.example.userservice.models.User;
+import com.example.userservice.repositories.TokenRepository;
 import com.example.userservice.repositories.UserRepository;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    private final TokenRepository tokenRepository;
+
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, TokenRepository tokenRepository) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.tokenRepository = tokenRepository;
     }
 
-    // Login
     public String login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
 
-        if (!Objects.equals(password, user.getHashedPassword())) {
+        if (!bCryptPasswordEncoder.matches(password, user.getHashedPassword())) {
             throw new LoginFailedException("Invalid password");
         }
-
-        // generate and return a random token
-        return "random-token";
+        Token token = new Token();
+        token.setUser(user);
+        token.setValue(RandomStringUtils.randomAlphanumeric(128));
+        LocalDateTime localDateTime = LocalDateTime.now().plusDays(30);
+        token.setExpiry(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        return tokenRepository.save(token).getValue();
     }
 
-    // no need to hash password for now
-    // just store user as is in the db
-    // for now no need to have email verification either
-    public User signUp(SignUpRequestDto signUpRequestDto) {
+    public User signUp(String name, String email, String password) {
         User user = new User();
-        user.setEmail(signUpRequestDto.getEmail());
-        user.setHashedPassword(signUpRequestDto.getPassword());
-        user.setName(signUpRequestDto.getName());
+        user.setEmail(email);
+        user.setHashedPassword(bCryptPasswordEncoder.encode(password));
+        user.setName(name);
         return userRepository.save(user);
     }
 
-    public void logout(String token) {
-        // delete token if exists -> 200
-        // if doesn't exist give a 404
-
+    public void logout(String tokenValue) {
+        Token token = tokenRepository.findByValue(tokenValue)
+                .orElseThrow(() -> new InvalidTokenException("Invalid token"));
+        tokenRepository.delete(token);
     }
 }
